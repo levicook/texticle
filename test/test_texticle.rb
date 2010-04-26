@@ -44,6 +44,22 @@ class TestTexticle < TexticleTestCase
     ns = x.named_scopes.first[1].call('foo')
     assert_match(/^#{x.table_name}\.\*/, ns[:select])
   end
+
+  def test_multiple_named_indexes_on_one_model
+    x = fake_model
+    x.class_eval do
+      extend Texticle
+      index('foo') do
+        foo
+      end
+      index('bar') do
+        bar
+      end
+    end
+    assert_equal 2, x.named_scopes.length
+    assert_equal :search_foo, x.named_scopes.first.first
+    assert_equal :search_bar, x.named_scopes.last.first
+  end
   
   def test_double_quoted_queries
     x = fake_model
